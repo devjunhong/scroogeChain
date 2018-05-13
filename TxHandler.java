@@ -36,6 +36,20 @@ public class TxHandler {
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
         // IMPLEMENT THIS
+        ArrayList<Transaction> validTxs = new ArrayList<Transaction>();
+
+        for (Transaction tx: possibleTxs){
+            if(isValidTx(tx)){
+                validTxs.add(tx);
+            }else{
+
+            }
+        }
+
+        Transaction[] validTxsArr = new Transaction[validTxs.size()];
+        validTxsArr = validTxs.toArray(validTxsArr);
+
+        return validTxsArr;
     }
 
     public class Validity{
@@ -46,7 +60,13 @@ public class TxHandler {
         }
 
         public boolean isValid(){
-
+            if (isInUTXOpool() && 
+                areInputsValid() && 
+                isMultipleClaimed() &&
+                isNegativeOutput() &&
+                isInputGTEOutput())
+                return true;
+            return false;
         }
 
         /**
@@ -54,12 +74,16 @@ public class TxHandler {
          * are in the current UTXO pool, 
          **/
         public boolean isInUTXOpool(){
-            ArrayList<Transaction.Output> outputs = _tx.getOutputs(); 
+            ArrayList<Transaction.Output> outputs = _tx.getOutputs();
             ArrayList<UTXO> utxos = current.getAllUTXO();
 
             for(int i = 0; i < utxos.size(); i++){
-
+                Transaction.Output utxoOutput = current.getTxOutput(utxos.get(i));
+                if(!outputs.contains(utxoOutput))
+                    return false;
             }
+
+            return true;
         }
 
         /**
@@ -86,6 +110,9 @@ public class TxHandler {
         /**
          * (3) no UTXO is claimed multiple times by {@code tx},
          **/
+        public boolean isMultipleClaimed(){
+            return true;
+        }
 
         /**
          * (4) Check the all {@code tx}s output values 
@@ -94,17 +121,20 @@ public class TxHandler {
         public boolean isNegativeOutput(){
             ArrayList<Transaction.Output> outputs = _tx.getOutputs(); 
             for(int i = 0; i < outputs.size(); i++){
-                if(outputs[i].value < 0)
-                    return true;
+                if(outputs.get(i).value < 0)
+                    return false;
             }
+            return true;
         }
 
         /**
          * (5) the sum of {@code tx}s input values is 
          * greater than or equal to the sum of its output
          **/
-        public boolean sumInputGTE(){
-            
+        public boolean isInputGTEOutput(){
+            // is there input value? 
+            // output value is exist but ? 
+            return true;
         }
     }
 }
